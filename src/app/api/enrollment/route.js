@@ -135,10 +135,21 @@ export const DELETE = async (request) => {
   //verify token and get "studentId" and "role" information here
   const rawAuthHeader = headers().get("authorization");
   const token = rawAuthHeader.split(" ")[1];
-  const payload = jwt.verify(token, process.env.JWT_SECRET);
-  let studentId = payload.studentId;
-  let role = payload.role;
-
+  let studentId = null;
+  let role = null;
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    studentId = payload.studentId;
+    role = payload.role;
+  } catch {
+    return NextResponse.json(
+      {
+        ok: false,
+        message: "Invalid token",
+      },
+      { status: 401 }
+    );
+  }
   //if role is "ADMIN", send the following response
   if (role === "ADMIN")
     return NextResponse.json(
